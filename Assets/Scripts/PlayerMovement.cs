@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private Transform movePoint;
+    [SerializeField] private GhostMovement ghost;
 
     [SerializeField] private Transform avatar;
     [SerializeField] private Animator avatarAnimator;
@@ -69,6 +70,8 @@ public class PlayerMovement : MonoBehaviour
         {   
             horizontal = Input.GetAxisRaw("Horizontal");
             vertical = Input.GetAxisRaw("Vertical");
+            // Add input snapshot for ghost
+            ghost.addPlayerSnapshot(horizontal, vertical);
 
             if (Mathf.Abs(horizontal) > 0 || Mathf.Abs(vertical) > 0)
             {

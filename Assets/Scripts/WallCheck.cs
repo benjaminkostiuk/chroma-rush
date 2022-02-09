@@ -7,13 +7,31 @@ public class WallCheck : MonoBehaviour
     [SerializeField] private int wallCollisionIndex;
     private void OnTriggerEnter(Collider other)
     {
-       //Debug.Log("has wall for " + wallCollisionIndex);
-        transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = true;
+        if(other.CompareTag("LevelBlock"))
+        {
+            //Debug.Log("has wall for " + wallCollisionIndex);
+            if(transform.parent.CompareTag("Player")) {
+                transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = true;
+            } else if(transform.parent.CompareTag("Ghost"))
+            {
+                transform.parent.GetComponent<GhostMovement>().hasWallCollision[wallCollisionIndex] = true;
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        //Debug.Log("no wall for " + wallCollisionIndex);
-        transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = false;
+        if (other.CompareTag("LevelBlock"))
+        {
+            //Debug.Log("no wall for " + wallCollisionIndex);
+            if (transform.parent.CompareTag("Player"))
+            {
+                transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = false;
+            }
+            else if (transform.parent.CompareTag("Ghost"))
+            {
+                transform.parent.GetComponent<GhostMovement>().hasWallCollision[wallCollisionIndex] = false;
+            }
+        }
     }
 }
