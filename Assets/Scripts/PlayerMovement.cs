@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -13,12 +14,17 @@ public class PlayerMovement : MonoBehaviour
     private AvatarState avatarState = AvatarState.IDLE;
 
     [SerializeField] private LayerMask levelMask;
+    [SerializeField] private GameObject nextLevelButton;
 
     private float horizontal;
     private float vertical;
 
     // front (z = 1), back (z = -1), right (x = 1), left (x = -1)
     public bool[] hasWallCollision = { false, false, false, false };
+
+    public int levelBlockCount;
+    public int claimedBlockCount = 0;
+    public bool victory = false;
 
     /**
      * Animation state for the player avatar
@@ -33,18 +39,15 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        levelBlockCount = GameObject.FindGameObjectsWithTag("LevelBlock").Length + GameObject.FindGameObjectsWithTag("LevelBlockLight").Length;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Vector3.Distance(transform.position, movePoint.position) == 0)
-        {
-            avatarState = AvatarState.IDLE;
-        }
-
         transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
-        if(IsOffEdge() && Vector3.Distance(transform.position, movePoint.position) <= .05f)
+
+        if (IsOffEdge() && Vector3.Distance(transform.position, movePoint.position) <= .05f)
         {
             if(horizontal > 0)
             {
@@ -67,15 +70,28 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         else if (Vector3.Distance(transform.position, movePoint.position) <= .01f)
-        {   
+        {
+            if (victory)
+            {
+                nextLevelButton.SetActive(true);
+                avatarState = AvatarState.CELEBRATING;
+                UpdateAvatarAnimationState();
+                return;
+            }
+
             horizontal = Input.GetAxisRaw("Horizontal");
             vertical = Input.GetAxisRaw("Vertical");
-            // Add input snapshot for ghost
-            ghost.addPlayerSnapshot(horizontal, vertical);
+
+            if (Vector3.Distance(transform.position, movePoint.position) == 0)
+            {
+                avatarState = AvatarState.IDLE;
+            }
 
             if (Mathf.Abs(horizontal) > 0 || Mathf.Abs(vertical) > 0)
             {
                 avatarState = AvatarState.RUNNING;
+                // Add input snapshot for ghost
+                ghost.addPlayerSnapshot(horizontal, vertical, Time.fixedTime);
             }
 
             if (Mathf.Abs(horizontal) == 1f)
@@ -154,5 +170,21 @@ public class PlayerMovement : MonoBehaviour
     private bool IsOffEdge()
     {
         return !Physics.BoxCast(transform.position, new Vector3(0.2f, 0.2f, 0.2f), transform.up * (-1), transform.rotation, 0.6f, levelMask);
+    }
+
+    public void ClaimBlock()
+    {
+        claimedBlockCount += 1;
+        if(claimedBlockCount == levelBlockCount)
+        {
+            victory = true;
+            Debug.Log(Time.timeSinceLevelLoad);
+            ghost.victory = true;
+        }
+    }
+
+    public void UnclaimBlock()
+    {
+        claimedBlockCount -= 1;
     }
 }

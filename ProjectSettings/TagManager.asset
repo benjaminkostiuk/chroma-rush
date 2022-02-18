@@ -6,6 +6,7 @@ TagManager:
   tags:
   - LevelBlock
   - Ghost
+  - LevelBlockLight
   layers:
   - Default
   - TransparentFX

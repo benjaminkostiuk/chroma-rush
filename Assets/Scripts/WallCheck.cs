@@ -7,30 +7,31 @@ public class WallCheck : MonoBehaviour
     [SerializeField] private int wallCollisionIndex;
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("LevelBlock"))
-        {
-            //Debug.Log("has wall for " + wallCollisionIndex);
-            if(transform.parent.CompareTag("Player")) {
-                transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = true;
-            } else if(transform.parent.CompareTag("Ghost"))
-            {
-                transform.parent.GetComponent<GhostMovement>().hasWallCollision[wallCollisionIndex] = true;
-            }
-        }
+        UpdateWallCollider(other, true);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        UpdateWallCollider(other, true);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("LevelBlock"))
+        UpdateWallCollider(other, false);
+    }
+
+    private void UpdateWallCollider(Collider other, bool value)
+    {
+        if (other.CompareTag("LevelBlock") || other.CompareTag("LevelBlockLight"))
         {
-            //Debug.Log("no wall for " + wallCollisionIndex);
+            Debug.Log("has wall for " + wallCollisionIndex);
             if (transform.parent.CompareTag("Player"))
             {
-                transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = false;
+                transform.parent.GetComponent<PlayerMovement>().hasWallCollision[wallCollisionIndex] = value;
             }
             else if (transform.parent.CompareTag("Ghost"))
             {
-                transform.parent.GetComponent<GhostMovement>().hasWallCollision[wallCollisionIndex] = false;
+                transform.parent.GetComponent<GhostMovement>().hasWallCollision[wallCollisionIndex] = value;
             }
         }
     }
